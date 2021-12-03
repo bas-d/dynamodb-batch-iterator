@@ -1,52 +1,47 @@
 {
-  "name": "@aws/dynamodb-batch-iterator",
-  "version": "0.7.1",
-  "description": "Abstraction for DynamoDB batch reads and writes for that handles batch splitting and partial retries with exponential backoff",
-  "keywords": [
-    "aws",
-    "dynamodb"
-  ],
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/awslabs/dynamodb-data-mapper-js.git"
-  },
-  "bugs": {
-    "url": "https://github.com/awslabs/dynamodb-data-mapper-js/issues"
-  },
-  "homepage": "https://awslabs.github.io/dynamodb-data-mapper-js/packages/dynamodb-batch-iterator/",
-  "main": "./build/index.js",
-  "types": "./build/index.d.ts",
-  "scripts": {
-    "docs": "typedoc src",
-    "prepublishOnly": "tsc",
-    "pretest": "tsc -p tsconfig.test.json",
-    "test": "jest \"build/(.+).spec.js\""
-  },
-  "author": {
-    "name": "AWS SDK for JavaScript Team",
-    "email": "aws-sdk-js@amazon.com"
-  },
-  "license": "Apache-2.0",
-  "devDependencies": {
-    "@types/jest": "^27.0.3",
-    "@types/node": "^16.11.11",
-    "jest": "^27.4.3",
-    "prettier": "^2.5.0",
-    "typedoc": "^0.22.10",
-    "typescript": "^4.5.2"
-  },
-  "peerDependencies": {
-    "aws-sdk": "^2.7.0"
-  },
-  "dependencies": {
-    "aws-sdk": "^2.1042.0",
-    "tslib": "^2.3.1",
-    "utf8-bytes": "^0.0.1"
-  },
-  "jest": {
-    "testEnvironment": "node",
-    "testPathIgnorePatterns": [
-      "/node_modules/"
-    ]
-  }
+    "name": "@aws/dynamodb-batch-iterator",
+    "version": "0.7.1",
+    "description": "Abstraction for DynamoDB batch reads and writes for that handles batch splitting and partial retries with exponential backoff",
+    "keywords": [
+        "aws",
+        "dynamodb"
+    ],
+    "repository": {
+        "type": "git",
+        "url": "git+https://github.com/awslabs/dynamodb-data-mapper-js.git"
+    },
+    "bugs": {
+        "url": "https://github.com/awslabs/dynamodb-data-mapper-js/issues"
+    },
+    "homepage": "https://awslabs.github.io/dynamodb-data-mapper-js/packages/dynamodb-batch-iterator/",
+    "main": "./build/index.js",
+    "types": "./build/index.d.ts",
+    "scripts": {
+        "docs": "typedoc src",
+        "prepublishOnly": "tsc",
+        "pretest": "tsc -p tsconfig.test.json",
+        "test": "jest \"build/(.+).spec.js\""
+    },
+    "author": {
+        "name": "AWS SDK for JavaScript Team",
+        "email": "aws-sdk-js@amazon.com"
+    },
+    "license": "Apache-2.0",
+    "devDependencies": {
+        "@aws-sdk/client-dynamodb": "^3.44.0",
+        "@types/jest": "^27.0.3",
+        "@types/node": "^16.11.11",
+        "jest": "^27.4.3",
+        "prettier": "^2.5.0",
+        "ts-jest": "^27.0.7",
+        "typedoc": "^0.22.10",
+        "typescript": "^4.5.2"
+    },
+    "peerDependencies": {
+        "@aws-sdk/client-dynamodb": "^3.44.0"
+    },
+    "dependencies": {
+        "tslib": "^2.3.1",
+        "utf8-bytes": "^0.0.1"
+    }
 }

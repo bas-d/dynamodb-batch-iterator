@@ -1,8 +1,12 @@
 import { BatchGetOptions, PerTableOptions } from './BatchGetOptions';
 import { BatchOperation } from './BatchOperation';
 import { SyncOrAsyncIterable, TableState } from './types';
-import { AttributeMap, BatchGetItemInput } from 'aws-sdk/clients/dynamodb';
-import DynamoDB = require('aws-sdk/clients/dynamodb');
+import {
+    DynamoDBClient,
+    BatchGetItemCommandInput,
+    AttributeValue,
+    BatchGetItemCommand
+} from '@aws-sdk/client-dynamodb';
 
 export const MAX_READ_BATCH_SIZE = 100;
 
@@ -14,7 +18,8 @@ export const MAX_READ_BATCH_SIZE = 100;
  * unprocessed. Exponential backoff on unprocessed items is employed on a
  * per-table basis.
  */
-export class BatchGet extends BatchOperation<AttributeMap> {
+
+export class BatchGet extends BatchOperation<Record<string, AttributeValue>> {
     protected readonly batchSize = MAX_READ_BATCH_SIZE;
 
     private readonly consistentRead?: boolean;
@@ -30,12 +35,9 @@ export class BatchGet extends BatchOperation<AttributeMap> {
      * @param options   Additional options to apply to the operations executed.
      */
     constructor(
-        client: DynamoDB,
-        items: SyncOrAsyncIterable<[string, AttributeMap]>,
-        {
-            ConsistentRead,
-            PerTableOptions = {},
-        }: BatchGetOptions = {}
+        client: DynamoDBClient,
+        items: SyncOrAsyncIterable<[string, Record<string, AttributeValue>]>,
+        { ConsistentRead, PerTableOptions = {} }: BatchGetOptions = {}
     ) {
         super(client, items);
         this.consistentRead = ConsistentRead;
@@ -43,41 +45,41 @@ export class BatchGet extends BatchOperation<AttributeMap> {
     }
 
     protected async doBatchRequest() {
-        const operationInput: BatchGetItemInput = {RequestItems: {}};
+        const operationInput: BatchGetItemCommandInput = { RequestItems: {} };
         let batchSize = 0;
 
         while (this.toSend.length > 0) {
-            const [tableName, item] = this.toSend.shift() as [string, AttributeMap];
-            if (operationInput.RequestItems[tableName] === undefined) {
-                const {
-                    projection,
-                    consistentRead,
-                    attributeNames,
-                } = this.state[tableName];
+            const [tableName, item] = this.toSend.shift() as [string, Record<string, AttributeValue>];
+            if (operationInput.RequestItems === undefined) {
+                operationInput.RequestItems = {};
+            }
+
+            if (operationInput.RequestItems?.[tableName] === undefined) {
+                const { projection, consistentRead, attributeNames } = this.state[tableName];
 
                 operationInput.RequestItems[tableName] = {
                     Keys: [],
                     ConsistentRead: consistentRead,
                     ProjectionExpression: projection,
-                    ExpressionAttributeNames: attributeNames,
+                    ExpressionAttributeNames: attributeNames
                 };
             }
-            operationInput.RequestItems[tableName].Keys.push(item);
+            operationInput.RequestItems?.[tableName]?.Keys?.push(item);
 
             if (++batchSize === this.batchSize) {
                 break;
             }
         }
-
-        const {
-            Responses = {},
-            UnprocessedKeys = {},
-        } = await this.client.batchGetItem(operationInput).promise();
+        const command = new BatchGetItemCommand(operationInput);
+        const { Responses = {}, UnprocessedKeys = {} } = await this.client.send(command);
 
         const unprocessedTables = new Set<string>();
         for (const table of Object.keys(UnprocessedKeys)) {
-            unprocessedTables.add(table);
-            this.handleThrottled(table, UnprocessedKeys[table].Keys);
+            const keys = UnprocessedKeys[table].Keys;
+            if (keys != null) {
+                unprocessedTables.add(table);
+                this.handleThrottled(table, keys);
+            }
         }
 
         this.movePendingToThrottled(unprocessedTables);
@@ -91,12 +93,12 @@ export class BatchGet extends BatchOperation<AttributeMap> {
         }
     }
 
-    protected getInitialTableState(tableName: string): TableState<AttributeMap> {
+    protected getInitialTableState(tableName: string): TableState<Record<string, AttributeValue>> {
         const {
             ExpressionAttributeNames,
             ProjectionExpression,
-            ConsistentRead = this.consistentRead,
-        } = this.options[tableName] || {} as PerTableOptions;
+            ConsistentRead = this.consistentRead
+        } = this.options[tableName] || ({} as PerTableOptions);
 
         return {
             ...super.getInitialTableState(tableName),

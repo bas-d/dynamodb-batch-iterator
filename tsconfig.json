@@ -2,18 +2,28 @@
   "compilerOptions": {
     "target": "es5",
     "lib": [
-      "dom",
-      "es5"
+      "es5",
+      "es2015.iterable",
+      "es2015.promise",
+      "es2015.collection",
+      "es2015.symbol.wellknown",
+      "esnext.asynciterable"
     ],
+    "downlevelIteration": true,
+    "importHelpers": true,
     "module": "commonjs",
-    "strict": true
+    "noUnusedLocals": true,
+    "strict": true,
+    "declaration": true,
+    "sourceMap": true,
+    "rootDir": "./src",
+    "outDir": "./build"
   },
   "typedocOptions": {
     "mode": "file",
     "out": "./docs",
     "excludeNotExported": true,
     "excludePrivate": true,
-    "hideGenerator": true,
-    "name": "Amazon DynamoDB DataMapper For JavaScript"
+    "hideGenerator": true
   }
 }

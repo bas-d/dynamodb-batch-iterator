@@ -1,6 +1,6 @@
 {
-    "name": "@aws/dynamodb-batch-iterator",
-    "version": "0.7.1",
+    "name": "dynamodb-batch-iterator",
+    "version": "0.8.0",
     "description": "Abstraction for DynamoDB batch reads and writes for that handles batch splitting and partial retries with exponential backoff",
     "keywords": [
         "aws",
@@ -8,12 +8,12 @@
     ],
     "repository": {
         "type": "git",
-        "url": "git+https://github.com/awslabs/dynamodb-data-mapper-js.git"
+        "url": "git+https://github.com/bas-d/dynamodb-batch-iterator.git"
     },
     "bugs": {
-        "url": "https://github.com/awslabs/dynamodb-data-mapper-js/issues"
+        "url": "https://github.com/bas-d/dynamodb-batch-iterator/issues"
     },
-    "homepage": "https://awslabs.github.io/dynamodb-data-mapper-js/packages/dynamodb-batch-iterator/",
+    "homepage": "https://bas-d.github.io/dynamodb-batch-iterator/",
     "main": "./build/index.js",
     "types": "./build/index.d.ts",
     "scripts": {
@@ -23,8 +23,8 @@
         "test": "jest \"build/(.+).spec.js\""
     },
     "author": {
-        "name": "AWS SDK for JavaScript Team",
-        "email": "aws-sdk-js@amazon.com"
+        "name": "AWS SDK for JavaScript Team & Bas Doorn",
+        "email": "7903735+bas-d@users.noreply.github.com"
     },
     "license": "Apache-2.0",
     "devDependencies": {

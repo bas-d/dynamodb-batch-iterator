@@ -1,10 +1,5 @@
 import { BatchGet, MAX_READ_BATCH_SIZE } from './BatchGet';
-import {
-    AttributeValue,
-    BatchGetItemCommand,
-    BatchGetItemCommandInput,
-    BatchGetItemCommandOutput
-} from '@aws-sdk/client-dynamodb';
+import { AttributeValue, BatchGetItemCommand, BatchGetItemCommandOutput } from '@aws-sdk/client-dynamodb';
 
 describe('BatchGet', () => {
     const mockDynamoDbClient = {
@@ -199,11 +194,6 @@ describe('BatchGet', () => {
                     fizz,
                     buzz
                 });
-                expected[Math.floor(i / MAX_READ_BATCH_SIZE)][0].input.RequestItems[table].ConsistentRead = undefined;
-                expected[Math.floor(i / MAX_READ_BATCH_SIZE)][0].input.RequestItems[table].ExpressionAttributeNames =
-                    undefined;
-                expected[Math.floor(i / MAX_READ_BATCH_SIZE)][0].input.RequestItems[table].ProjectionExpression =
-                    undefined;
                 expected[Math.floor(i / MAX_READ_BATCH_SIZE)][0].input.RequestItems[table].Keys.push({ fizz });
             }
 
@@ -329,9 +319,8 @@ describe('BatchGet', () => {
             const { calls } = mockDynamoDbClient.send.mock;
             expect(calls.length).toBe(Math.ceil(gets.length / MAX_READ_BATCH_SIZE));
 
-            const callCount: { [key: string]: number } = (calls as Array<Array<BatchGetItemCommandInput>>).reduce(
+            const callCount: { [key: string]: number } = (calls as Array<Array<BatchGetItemCommand>>).reduce(
                 (keyUseCount: { [key: string]: number }, call) => {
-                    //@ts-ignore
                     const { RequestItems } = call[0].input;
                     const keys = [];
                     if (RequestItems != null) {

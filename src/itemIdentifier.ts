@@ -1,5 +1,4 @@
-import { WriteRequest } from './types';
-import { AttributeValue } from '@aws-sdk/client-dynamodb';
+import { AttributeValue, WriteRequest } from '@aws-sdk/client-dynamodb';
 const bytes = require('utf8-bytes');
 
 /**

@@ -1,7 +1,6 @@
 import { BatchOperation } from './BatchOperation';
 import { itemIdentifier } from './itemIdentifier';
-import { WriteRequest } from './types';
-import { BatchWriteItemInput } from 'aws-sdk/clients/dynamodb';
+import { BatchWriteItemCommand, BatchWriteItemInput, WriteRequest } from '@aws-sdk/client-dynamodb';
 
 export const MAX_WRITE_BATCH_SIZE = 25;
 
@@ -23,18 +22,18 @@ export class BatchWrite extends BatchOperation<WriteRequest> {
 
     protected async doBatchRequest() {
         const inFlight: Array<[string, WriteRequest]> = [];
-        const operationInput: BatchWriteItemInput = {RequestItems: {}};
+        const operationInput: BatchWriteItemInput = { RequestItems: {} };
 
         let batchSize = 0;
         while (this.toSend.length > 0) {
-            const [
-                tableName,
-                marshalled
-            ] = this.toSend.shift() as [string, WriteRequest];
+            const [tableName, marshalled] = this.toSend.shift() as [string, WriteRequest];
 
             inFlight.push([tableName, marshalled]);
 
-            if (operationInput.RequestItems[tableName] === undefined) {
+            if (operationInput?.RequestItems === undefined) {
+                operationInput.RequestItems = {};
+            }
+            if (operationInput?.RequestItems?.[tableName] === undefined) {
                 operationInput.RequestItems[tableName] = [];
             }
             operationInput.RequestItems[tableName].push(marshalled);
@@ -43,10 +42,8 @@ export class BatchWrite extends BatchOperation<WriteRequest> {
                 break;
             }
         }
-
-        const {
-            UnprocessedItems = {}
-        } = await this.client.batchWriteItem(operationInput).promise();
+        const command = new BatchWriteItemCommand(operationInput);
+        const { UnprocessedItems = {} } = await this.client.send(command);
         const unprocessedTables = new Set<string>();
 
         for (const table of Object.keys(UnprocessedItems)) {
@@ -59,10 +56,7 @@ export class BatchWrite extends BatchOperation<WriteRequest> {
                     const identifier = itemIdentifier(table, item as WriteRequest);
                     for (let i = inFlight.length - 1; i >= 0; i--) {
                         const [tableName, attributes] = inFlight[i];
-                        if (
-                            tableName === table &&
-                            itemIdentifier(tableName, attributes) === identifier
-                        ) {
+                        if (tableName === table && itemIdentifier(tableName, attributes) === identifier) {
                             inFlight.splice(i, 1);
                         }
                     }
@@ -81,8 +75,7 @@ export class BatchWrite extends BatchOperation<WriteRequest> {
         }
 
         for (const tableName of processedTables) {
-            this.state[tableName].backoffFactor =
-                Math.max(0, this.state[tableName].backoffFactor - 1);
+            this.state[tableName].backoffFactor = Math.max(0, this.state[tableName].backoffFactor - 1);
         }
     }
 }

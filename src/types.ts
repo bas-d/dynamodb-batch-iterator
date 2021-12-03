@@ -1,9 +1,4 @@
-import {
-    AttributeValue,
-    DeleteRequest,
-    PutRequest,
-    WriteRequest as DynamoDbWriteRequest
-} from '@aws-sdk/client-dynamodb';
+import { AttributeValue, WriteRequest } from '@aws-sdk/client-dynamodb';
 
 /**
  * A synchronous or asynchronous iterable.
@@ -49,16 +44,16 @@ export interface ThrottledTableConfiguration<Element extends TableStateElement> 
     tableThrottling?: TableThrottlingTracker<Element>;
 }
 
-/**
- * A write request for which exactly one of the `PutRequest` and `DeleteRequest`
- * properties has been defined.
- */
-export type WriteRequest =
-    | (DynamoDbWriteRequest & {
-          PutRequest: PutRequest;
-          DeleteRequest?: undefined;
-      })
-    | (DynamoDbWriteRequest & {
-          DeleteRequest: DeleteRequest;
-          PutRequest?: undefined;
-      });
+// /**
+//  * A write request for which exactly one of the `PutRequest` and `DeleteRequest`
+//  * properties has been defined.
+//  */
+// export type WriteRequest =
+//     | (DynamoDbWriteRequest & {
+//           PutRequest: PutRequest;
+//           DeleteRequest?: undefined;
+//       })
+//     | (DynamoDbWriteRequest & {
+//           DeleteRequest: DeleteRequest;
+//           PutRequest?: undefined;
+//       });

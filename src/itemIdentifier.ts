@@ -1,28 +1,21 @@
 import { WriteRequest } from './types';
-import { AttributeMap, BinaryAttributeValue } from 'aws-sdk/clients/dynamodb';
+import { AttributeValue } from '@aws-sdk/client-dynamodb';
 const bytes = require('utf8-bytes');
 
 /**
  * @internal
  */
-export function itemIdentifier(
-    tableName: string, 
-    {DeleteRequest, PutRequest}: WriteRequest
-): string {
-    if (DeleteRequest) {
-        return `${tableName}::delete::${
-            serializeKeyTypeAttributes(DeleteRequest.Key)
-        }`;
-    } else if (PutRequest) {
-        return `${tableName}::put::${
-            serializeKeyTypeAttributes(PutRequest.Item)
-        }`;
+export function itemIdentifier(tableName: string, { DeleteRequest, PutRequest }: WriteRequest): string {
+    if (DeleteRequest?.Key != null) {
+        return `${tableName}::delete::${serializeKeyTypeAttributes(DeleteRequest.Key)}`;
+    } else if (PutRequest?.Item != null) {
+        return `${tableName}::put::${serializeKeyTypeAttributes(PutRequest.Item)}`;
     }
-    
+
     throw new Error(`Invalid write request provided`);
 }
 
-function serializeKeyTypeAttributes(attributes: AttributeMap): string {
+function serializeKeyTypeAttributes(attributes: Record<string, AttributeValue>): string {
     const keyTypeProperties: Array<string> = [];
     for (const property of Object.keys(attributes).sort()) {
         const attribute = attributes[property];
@@ -38,13 +31,9 @@ function serializeKeyTypeAttributes(attributes: AttributeMap): string {
     return keyTypeProperties.join('&');
 }
 
-function toByteArray(value: BinaryAttributeValue): Uint8Array {
+function toByteArray(value: any): Uint8Array {
     if (ArrayBuffer.isView(value)) {
-        return new Uint8Array(
-            value.buffer,
-            value.byteOffset,
-            value.byteLength
-        );
+        return new Uint8Array(value.buffer, value.byteOffset, value.byteLength);
     }
 
     if (typeof value === 'string') {
@@ -59,6 +48,8 @@ function toByteArray(value: BinaryAttributeValue): Uint8Array {
 }
 
 function isArrayBuffer(arg: any): arg is ArrayBuffer {
-    return (typeof ArrayBuffer === 'function' && arg instanceof ArrayBuffer) ||
-        Object.prototype.toString.call(arg) === '[object ArrayBuffer]';
+    return (
+        (typeof ArrayBuffer === 'function' && arg instanceof ArrayBuffer) ||
+        Object.prototype.toString.call(arg) === '[object ArrayBuffer]'
+    );
 }

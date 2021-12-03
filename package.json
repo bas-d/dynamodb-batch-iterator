@@ -46,8 +46,7 @@
   "jest": {
     "testEnvironment": "node",
     "testPathIgnorePatterns": [
-      "/node_modules/",
-      ".ts"
+      "/node_modules/"
     ]
   }
 }

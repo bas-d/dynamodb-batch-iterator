@@ -149,7 +149,7 @@ export abstract class BatchOperation<Element extends TableStateElement>
       if (unprocessedTables.has(table)) {
         (
           this.state[table] as ThrottledTableConfiguration<Element>
-        ).tableThrottling.unprocessed.push(attributes);
+        ).tableThrottling?.unprocessed.push(attributes);
         this.toSend.splice(i, 1);
       }
     }
@@ -169,6 +169,9 @@ export abstract class BatchOperation<Element extends TableStateElement>
   }
 
   private enqueueThrottled(table: ThrottledTableConfiguration<Element>): void {
+    if (table.tableThrottling == null) {
+      return;
+    }
     const {
       tableThrottling: { backoffWaiter, unprocessed },
     } = table;
@@ -210,7 +213,9 @@ export abstract class BatchOperation<Element extends TableStateElement>
         : await Promise.race([this.sourceNext, Promise.race(this.throttled)]);
 
       if (isIteratorResult(toProcess)) {
-        this.sourceDone = toProcess.done;
+        if (toProcess.done) {
+          this.sourceDone = true;
+        }
         if (!this.sourceDone) {
           this.addToSendQueue(toProcess.value);
           this.sourceNext = this.iterator.next();

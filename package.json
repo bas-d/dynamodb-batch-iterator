@@ -1,5 +1,5 @@
 {
-    "name": "@bas-d/dynamodb-batch-iterator",
+    "name": "dynamodb-batch-iterator",
     "version": "0.8.0",
     "description": "Abstraction for DynamoDB batch reads and writes for that handles batch splitting and partial retries with exponential backoff",
     "keywords": [
@@ -43,8 +43,5 @@
     "dependencies": {
         "tslib": "^2.3.1",
         "utf8-bytes": "^0.0.1"
-    },
-    "publishConfig": {
-        "registry": "https://npm.pkg.github.com"
     }
 }

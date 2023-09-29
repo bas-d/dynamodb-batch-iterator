@@ -15,10 +15,9 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: 'npm'
       - run: npm ci --ignore-scripts
-      - run: npm run build
       - run: npm run test
 
   publish:
@@ -31,7 +30,7 @@ jobs:
       - uses: actions/checkout@v3
       - uses: actions/setup-node@v3
         with:
-          node-version: 16
+          node-version: 18
           cache: 'npm'
           registry-url: https://npm.pkg.github.com/
       - name: Install dependencies
